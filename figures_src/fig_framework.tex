@@ -1,0 +1,70 @@
+\documentclass[tikz,border=3pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc}
+\usepackage[scaled]{helvet}
+\usepackage{amsmath,amssymb,pifont}
+\renewcommand{\familydefault}{\sfdefault}
+\definecolor{hon}{HTML}{1F6FB2}
+\definecolor{honl}{HTML}{DCEBF7}
+\definecolor{mal}{HTML}{C0392B}
+\definecolor{mall}{HTML}{F8DEDB}
+\definecolor{qnt}{HTML}{6C3FA0}
+\definecolor{qntl}{HTML}{ECE3F6}
+\definecolor{mec}{HTML}{1E8449}
+\definecolor{mecl}{HTML}{DFF2E6}
+\definecolor{amb}{HTML}{B9770E}
+\definecolor{ambl}{HTML}{FCF0DC}
+\definecolor{grey}{HTML}{5D6D7E}
+\tikzset{
+  blk/.style={rectangle, rounded corners=3pt, draw, thick, align=center, font=\scriptsize, inner sep=3pt, minimum height=1.0cm},
+  arr/.style={-{Stealth[length=1.8mm]}, thick},
+  lab/.style={font=\tiny, align=center},
+  grp/.style={rounded corners=5pt, draw=#1, dashed, thick, inner sep=5pt},
+}
+\begin{document}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% ---------- row 1: sensing & decision
+\node[blk, draw=hon, fill=honl, minimum width=2.5cm] (ecg) at (0,2.6)
+ {\textbf{\ding{172} WBAN sensing}\\ 10-s ECG window\\ $(D_i, C_i)$};
+\node[blk, draw=hon, fill=white, minimum width=2.5cm, right=0.55cm of ecg] (tri)
+ {\textbf{\ding{173} On-hub triage}\\ QRS + RR rules\\ priority $\kappa_i\!\in\!\{\mathrm{E,U,R}\}$};
+\node[blk, draw=mec, fill=mecl, minimum width=3.3cm, right=0.55cm of tri] (ppo)
+ {\textbf{\ding{174} Trust-masked PPO}\\ $s_i\!=\![\text{task},\kappa_i,h_i,\mathbf{r}_{\mathcal{K}_i},\ldots]$\\
+ $\pi_\theta(a_i|s_i)\odot \mathbf{m}_i$,\ \ $\lambda$-URLLC};
+\node[blk, draw=mec, fill=white, minimum width=2.9cm, right=0.55cm of ppo] (exe)
+ {\textbf{\ding{175} Execution}\\ local / MEC / peer $k$\\ power $P_i$, bandwidth $w_i$};
+\draw[arr, hon] (ecg) -- (tri);
+\draw[arr, hon] (tri) -- (ppo);
+\draw[arr, mec] (ppo) -- node[above, lab]{$a_i$} (exe);
+
+% ---------- row 2: trust layer
+\node[blk, draw=amb, fill=ambl, minimum width=2.9cm, below=1.05cm of exe] (det)
+ {\textbf{\ding{176} Observers \& detectors}\\ canary tokens, result audit,\\ SINR-residual, MAC check};
+\node[blk, draw=qnt, fill=qntl, minimum width=3.3cm, left=0.55cm of det] (rep)
+ {\textbf{\ding{177} Reputation update}\\ $r_n\!\leftarrow\!\Theta_{\ell} r_n+(1-\Theta_{\ell})\,q_\ell$\\ social norm, hysteresis gate $(\tau_q,\tau_r)$};
+\node[blk, draw=qnt, fill=white, minimum width=2.5cm, left=0.55cm of rep] (otp)
+ {\textbf{\ding{178} Quantum-secured}\\ \textbf{broadcast}\\ OTP $\oplus$ WC-MAC};
+\node[blk, draw=qnt, fill=qntl, minimum width=2.5cm, left=0.55cm of otp] (qkd)
+ {\textbf{\ding{179} CV-QKD}\\ QPSK (+QS)\\ key rate $K_{\mathrm{QS}}$};
+\draw[arr, amb] (exe) -- node[right, lab]{outcomes,\\behaviours} (det);
+\draw[arr, amb] (det) -- node[above, lab]{risk $\ell$} (rep);
+\draw[arr, qnt] (rep) -- node[above, lab]{table} (otp);
+\draw[arr, qnt] (qkd) -- node[above, lab]{keys} (otp);
+\draw[arr, qnt] (otp.north) to[out=90,in=-90] node[pos=0.35, right, lab]{verified $\mathbf{r}$, mask $\mathbf{m}_i$} (ppo.south);
+
+% ---------- adversary loop
+\node[blk, draw=mal, fill=mall, minimum width=3.1cm, below=0.85cm of rep] (adv)
+ {\textbf{Adaptive adversary}\\ Q-learning on own standing $(\lfloor 6r_n\rfloor, q_n^{\mathrm{quar}})$\\ forge / jam / fake / eavesdrop / spoof};
+\draw[arr, mal] (adv.east) -| node[pos=0.25, below, lab]{attacks} (det.south);
+\draw[arr, mal, dashed] (rep.south) -- node[left, lab]{standing,\\ service denial} (adv.north);
+\draw[arr, mal, dashed] (adv.west) -| node[pos=0.2, below, lab]{tamper attempt} (otp.south);
+
+% ---------- training box
+\node[blk, draw=grey, fill=white, minimum width=2.5cm, below=0.85cm of qkd, font=\tiny] (train)
+ {\textbf{Centralised training}\\ at MEC (digital twin);\\ decentralised execution\\ on WBAN hubs};
+\begin{scope}[on background layer]
+\node[grp=mec, fit=(ppo)(exe)(tri)(ecg), label={[font=\scriptsize\bfseries, text=mec]above:Clinical task plane (per slot)}] {};
+\node[grp=qnt, fit=(det)(rep)(otp)(qkd), label={[font=\scriptsize\bfseries, text=qnt, anchor=north east]south east:Quantum-secured trust plane}] {};
+\end{scope}
+\end{tikzpicture}
+\end{document}
