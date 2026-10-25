@@ -3,7 +3,7 @@
 Reference implementation of every experiment in the paper
 *"Learning-Based Quantum-Secured Reputation for Deception-Resilient Wireless Body Area Networks in Healthcare 5.0"* (IEEE J-BHI special issue on Advanced Wireless Networks for Healthcare 5.0).
 
-The code runs with **NumPy / SciPy / Matplotlib only** (no deep-learning framework, no GPU).
+
 `wfdb` is optional and only needed to use the real MIT-BIH Arrhythmia Database.
 
 ## Layout
