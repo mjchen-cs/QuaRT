@@ -1,9 +1,10 @@
-"""CV-QKD trust-backbone experiments (key rate vs. distance, registry key budget).
+"""CV-QKD trust-backbone experiments + ECG workload statistics.
 
-Writes results/qkd.json."""
+Writes results/qkd.json and results/ecg_metrics.json."""
 import json, os
 import numpy as np
 from quart.cvqkd import optimise_rate, self_test
+from quart.ecg import build_task_pool
 
 OUT = 'results'
 
@@ -40,6 +41,10 @@ def main():
     T = 10 ** (-0.02 * np.array(dists))
     res['plob'] = (-np.log2(1 - T)).tolist()
     json.dump(res, open(f'{OUT}/qkd.json', 'w'), indent=1)
+    # ECG workload / analytics model statistics
+    m = build_task_pool('auto', out=f'{OUT}/ecg_pool_ref.npz')
+    json.dump({k: v for k, v in m.items() if k in ('metrics', 'source')}, open(f'{OUT}/ecg_metrics.json', 'w'), indent=1)
+    print(m['metrics'])
 
 
 if __name__ == '__main__':

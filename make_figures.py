@@ -66,7 +66,7 @@ def save(fig, name):
 
 # ------------------------------------------------------------------ ECG ---
 def fig_ecg():
-    d = np.load(f'{RES}/ecg_pool.npz')
+    d = np.load(f'{RES}/ecg_pool_ref.npz')
     met = json.load(open(f'{RES}/ecg_metrics.json'))['metrics']
     ex = d['example']
     fig, ax = plt.subplots(1, 2, figsize=(W1, 1.75), gridspec_kw=dict(width_ratios=[1.6, 1]))
@@ -102,13 +102,13 @@ def fig_ecg():
             f.write(f"Windows (train / test) & {met['n_windows']-met['n_test']} / {met['n_test']}\\\\\n")
         b = met.get('beat')
         if b:
-            f.write(f"Beat level: V sensitivity / PPV & {100*b['V_sens']:.1f} / {100*b['V_ppv']:.1f}\\%\\\\\n")
-        f.write(f"Window 4-class accuracy & {100*met['acc']:.1f}\\%\\\\\n")
-        f.write(f"Recall NSR / AF / PVC / VT & {100*rec[0]:.1f} / {100*rec[1]:.1f} / {100*rec[2]:.1f} / {100*rec[3]:.1f}\\%\\\\\n")
-        f.write(f"Abnormal-alarm sensitivity / specificity & {100*met['sens_abnormal']:.1f} / {100*met['spec_abnormal']:.1f}\\%\\\\\n")
+            f.write(f"Beat level: V sensitivity / PPV & {100*b['V_sens']:.2f} / {100*b['V_ppv']:.2f}\\%\\\\\n")
+        f.write(f"Window 4-class accuracy & {100*met['acc']:.2f}\\%\\\\\n")
+        f.write(f"Recall NSR / AF / PVC / VT & {100*rec[0]:.2f} / {100*rec[1]:.2f} / {100*rec[2]:.2f} / {100*rec[3]:.2f}\\%\\\\\n")
+        f.write(f"Abnormal-alarm sensitivity / specificity & {100*met['sens_abnormal']:.2f} / {100*met['spec_abnormal']:.2f}\\%\\\\\n")
         if 'alarm_any_vt' in met:
-            f.write(f"VT-run windows raising an alarm & {100*met['alarm_any_vt']:.1f}\\%\\\\\n")
-        f.write(f"On-hub triage: sensitivity / E-flag rate & {100*met['triage_sens']:.1f} / {100*met['triage_flag_rate']:.1f}\\%\\\\\n")
+            f.write(f"VT-run windows raising an alarm & {100*met['alarm_any_vt']:.2f}\\%\\\\\n")
+        f.write(f"On-hub triage: sensitivity / E-flag rate & {100*met['triage_sens']:.2f} / {100*met['triage_flag_rate']:.2f}\\%\\\\\n")
         f.write('\\bottomrule\n\\end{tabular}\n')
 
 
@@ -283,14 +283,14 @@ def fig_malfrac(N=40):
 
 
 # --------------------------------------------------------------- tables ---
-def fmt(m, s, pct=True, d=1):
+def fmt(m, s, pct=True, d=2):
     k = 100 if pct else 1
     return f'{k*m:.{d}f}$\\pm${k*s:.{d}f}'
 
 
 def tab_main():
-    keys = [('attack', True, 1), ('wsuccess', True, 1), ('all_wsuccess', True, 1), ('cmp_service', True, 1),
-            ('emerg_viol', True, 1), ('crit_miss', True, 1), ('leak_per_1k', False, 1), ('energy_mj', False, 2), ('goodput_mbps', False, 1)]
+    keys = [('attack', True, 2), ('wsuccess', True, 2), ('all_wsuccess', True, 2), ('cmp_service', True, 2),
+            ('emerg_viol', True, 2), ('crit_miss', True, 2), ('leak_per_1k', False, 2), ('energy_mj', False, 2), ('goodput_mbps', False, 2)]
     summary = {}
     with open(f'{TAB}/tab_main.tex', 'w') as f:
         for N in (40, 80):
@@ -347,7 +347,7 @@ def tab_sweep():
                 tab[m] = row
             best = [max(tab, key=lambda mm: tab[mm][j]) for j in range(len(cols))]
             for m in CMP:
-                cells = [('\\textbf{%.1f}' if best[j] == m else '%.1f') % tab[m][j] for j in range(len(cols))]
+                cells = [('\\textbf{%.2f}' if best[j] == m else '%.2f') % tab[m][j] for j in range(len(cols))]
                 f.write(STYLE[m]['label'].replace(' (ours)', '') + ' & ' + ' & '.join(cells) + '\\\\\n')
             out[N] = tab
     return out
