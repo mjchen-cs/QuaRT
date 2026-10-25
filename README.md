@@ -1,7 +1,7 @@
 # QuaRT — Learning-based Quantum-Secured Reputation for Deception-Resilient WBANs (Healthcare 5.0)
 
 Reference implementation of every experiment in the paper
-*"Learning-Based Quantum-Secured Reputation for Deception-Resilient Wireless Body Area Networks in Healthcare 5.0"* (IEEE J-BHI special issue on Advanced Wireless Networks for Healthcare 5.0).
+*"Learning-Based Quantum-Secured Reputation for Deception-Resilient Wireless Body Area Networks in Healthcare 5.0"* (IEEE J-BHI).
 
 
 `wfdb` is optional and only needed to use the real MIT-BIH Arrhythmia Database.
